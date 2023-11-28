@@ -1,0 +1,101 @@
+﻿-- Tạo database BAN_HANG 
+CREATE DATABASE BAN_HANG 
+USE BAN_HANG
+GO
+
+--Tạo bảng
+CREATE TABLE HANGHOA
+(
+	MaHang VARCHAR(5) NOT NULL PRIMARY KEY,
+	TenHang VARCHAR(7) NOT NULL,
+	NuocSX VARCHAR(20) NOT NULL,
+	GiaBan INT
+)
+GO
+
+CREATE TABLE KHACHHANG
+(
+	MaKhach VARCHAR(5) NOT NULL PRIMARY KEY,
+	TenKhach VARCHAR(30) NOT NULL,
+	GioiTinh VARCHAR(3) NOT NULL,
+	DiaChi VARCHAR(20) NOT NULL,
+	DienThoai CHAR(11) NOT NULL
+)
+GO
+
+CREATE TABLE HOADON
+(
+	SoHoaDon VARCHAR(5) NOT NULL PRIMARY KEY,
+	MaKhach VARCHAR(5) NOT NULL,
+	MaHang VARCHAR(5) NOT NULL,
+	NgayBan DATE NOT NULL,
+	SoLuong INT,
+	TienHang INT,
+	ChietKhau FLOAT,
+	TongTien INT
+)
+GO
+
+--Tao khoa ngoai
+ALTER TABLE dbo.HOADON
+ADD CONSTRAINT FK_MaKhach FOREIGN KEY (MaKhach) REFERENCES dbo.KHACHHANG (MaKhach),
+	CONSTRAINT FK_MaHang FOREIGN KEY (MaHang) REFERENCES dbo.HANGHOA(MaHang)
+GO
+
+-- Nhập dữ liệu
+INSERT INTO dbo.HANGHOA (MaHang,TenHang,NuocSX, GiaBan)
+VALUES
+('MH001', 'Hang001', 'Viet Nam', 1000),
+('MH002', 'Hang002', 'My',2500),
+('MH003', 'Hang003', 'Thai Lan', 3000),
+('MH004', 'Hang004', 'Nhat Ban', 4000),
+('MH005', 'Hang005', 'Trung Quoc', 3500)
+GO
+
+INSERT INTO dbo.KHACHHANG(MaKhach,TenKhach,GioiTinh,DiaChi,DienThoai)
+VALUES
+('MK001', 'Nguyen Van An', 'Nam', 'Ha Tinh', '0972600283'),
+('MK002', 'Nguyen Thi Mo', 'Nu', 'Hai Phong', '0987654321'),
+('MK003', 'Nguyen Quoc Manh', 'Nam', 'Hue', '0325885785'),
+('MK004', 'Nguyen The Trung', 'Nam', 'Sai Gon', '0903252711'),
+('MK005', 'Nguyen Viet Hoang', 'Nam', 'Quang Nam', '0972600283')
+GO
+
+INSERT INTO dbo.HOADON(SoHoaDon, MaKhach,MaHang,NgayBan,SoLuong)
+VALUES
+('HD001','MK001','MH001','2018-01-01',1000),
+('HD002','MK002','MH002','2019-07-01',1500),
+('HD003','MK003','MH003', '2020-09-15',2000),
+('HD004','MK004','MH004', '2020-02-01',3000),
+('HD005','MK005','MH005', '2020-06-20',8000)
+GO
+
+UPDATE dbo.HOADON
+SET TienHang = SoLuong*GiaBan
+FROM dbo.HOADON INNER JOIN dbo.HANGHOA
+ON dbo.HANGHOA.MaHang=dbo.HOADON.MaHang
+
+UPDATE dbo.HOADON
+SET ChietKhau = IIF(TienHang > 5000000,0.15,
+IIF (TienHang < 5000000,0.8,1)) * TienHang
+
+UPDATE dbo.HOADON
+SET TongTien=TienHang-ChietKhau+0.1*TienHang
+
+SELECT * FROM dbo.HANGHOA
+WHERE NuocSX = 'My'
+ORDER BY GiaBan DESC
+
+SELECT dbo.KHACHHANG.* FROM dbo.KHACHHANG INNER JOIN dbo.HOADON
+ON dbo.KHACHHANG.MaKhach = dbo.HOADON.MaKhach
+WHERE SoHoaDon = 'HD001'
+
+SELECT TOP 2.* FROM dbo.HANGHOA
+ORDER BY GiaBan DESC
+
+SELECT * FROM dbo.HANGHOA
+SELECT * FROM dbo.HOADON
+SELECT * FROM dbo.KHACHHANG
+
+select SoLuong,TongTien from HOADON
+where NgayBan >= '2019-01-01'
